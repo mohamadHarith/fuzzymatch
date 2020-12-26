@@ -28,10 +28,10 @@ func main() {
 	matcher := fuzzymatch.New(data,
 		fuzzymatch.WithGramSize(2),    // default is 2 (recommended)
 		fuzzymatch.WithThreshold(0.5), // default is zero
-		fuzzymatch.WithDebug(true),
+		fuzzymatch.WithDebug(true),    // default is false
 	)
 
-	res := matcher.Match("contagon pandamix")
+	res := matcher.Match("an come home")
 
 	if len(res) > 0 {
 		// logic
