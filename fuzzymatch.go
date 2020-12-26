@@ -94,16 +94,6 @@ func New(dataArray []string, opts ...Option) *FuzzyMatcher {
 	return m
 }
 
-// GetGramsDictionary :
-func (f *FuzzyMatcher) GetGramsDictionary() map[string]map[int]int {
-	return f.gramsDictionary
-}
-
-// GetVectorMagnitudes :
-func (f *FuzzyMatcher) GetVectorMagnitudes() []float64 {
-	return f.vectorMagnitudes
-}
-
 // MatchedString :
 type MatchedString struct {
 	OrignalString    string
