@@ -1,6 +1,6 @@
 #### TODOS:
 
-- [] GramGenerator
+- [ ] GramGenerator
 - [ ] StringNormalizer
 - [ ] NormalMatch
 - [ ] FuzzyMatch
