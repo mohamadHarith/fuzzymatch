@@ -20,14 +20,15 @@ type FuzzyMatcher struct {
 	// broken into a fixed size. The default gram size is two.
 	gramSize int
 	// matchThreshold : the cosine similarity threshold of the matched strings.
+	// The default threshold is zero.
 	matchThreshold float64
-	// originalStrings : stores the data array
+	// originalStrings : stores the data array.
 	originalStrings []string
 	// vectorMagnitudes: stores the vector magnitudes of the normalized strings
 	// from the data array. The order of the elements of vectorMagnitudes follows
 	// the originalStrings.
 	vectorMagnitudes []float64
-	// marcherOptions :
+	// matcherOptions :
 	matcherOptions options
 }
 
@@ -50,7 +51,7 @@ func New(dataArray []string, opts ...Option) *FuzzyMatcher {
 	m.originalStrings = dataArray
 	m.vectorMagnitudes = make([]float64, len(dataArray), len(dataArray))
 	m.gramSize = 2
-	m.matchThreshold = 0.1
+	m.matchThreshold = 0
 
 	opt := new(options)
 	for _, cb := range opts {
@@ -103,16 +104,16 @@ func (f *FuzzyMatcher) GetVectorMagnitudes() []float64 {
 	return f.vectorMagnitudes
 }
 
-// Match :
-type Match struct {
+// MatchedString :
+type MatchedString struct {
 	OrignalString    string
 	CosineSimilarity float64
 }
 
 // Match :
-func (f *FuzzyMatcher) Match(query string) (res []string) {
+func (f *FuzzyMatcher) Match(rawQuery string) (res []string) {
 
-	query = NormalizeString(query)
+	query := NormalizeString(rawQuery)
 
 	// break query into grams and count them
 	gramCount := make(map[string]int)
@@ -120,7 +121,7 @@ func (f *FuzzyMatcher) Match(query string) (res []string) {
 		gramCount[query[i:i+f.gramSize]]++
 	}
 
-	// vector magnitude of query
+	// calculate vector magnitude of query
 	countSum := 0
 	var vectorMag float64
 
@@ -138,11 +139,11 @@ func (f *FuzzyMatcher) Match(query string) (res []string) {
 
 	vectorMag = math.Sqrt(float64(countSum))
 
-	matches := make([]Match, 0)
+	matches := make([]MatchedString, 0)
 	for k, v := range dotProducts {
 		cosineSimilarity := v / (vectorMag * f.vectorMagnitudes[k])
 		if cosineSimilarity > f.matchThreshold {
-			matches = append(matches, Match{
+			matches = append(matches, MatchedString{
 				OrignalString:    f.originalStrings[k],
 				CosineSimilarity: cosineSimilarity},
 			)
@@ -154,13 +155,12 @@ func (f *FuzzyMatcher) Match(query string) (res []string) {
 	})
 
 	if f.matcherOptions.debug {
-		log.Println("query=> ", query)
-		log.Println("matches: ")
+		log.Println("query=> ", rawQuery)
 	}
 
 	for _, v := range matches {
 		if f.matcherOptions.debug {
-			log.Printf("match=> %s cosine-similarity=> %f", v.OrignalString, v.CosineSimilarity)
+			log.Printf("%s %f", v.OrignalString, v.CosineSimilarity)
 		}
 		res = append(res, v.OrignalString)
 	}
