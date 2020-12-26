@@ -112,6 +112,8 @@ type Match struct {
 // Match :
 func (f *FuzzyMatcher) Match(query string) (res []string) {
 
+	query = NormalizeString(query)
+
 	// break query into grams and count them
 	gramCount := make(map[string]int)
 	for i := 0; i < len(query)-f.gramSize+1; i++ {
